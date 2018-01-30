@@ -137,7 +137,11 @@ public class TableHandler {
 	 **************************************************************************/
 	public String findRecord(String key) throws SQLException {
 		// TODO: Write this method
+		try{
 		return "";
+		}catch(IOException e){
+			return"";
+		}
 	}
 
 	/**************************************************************************************
