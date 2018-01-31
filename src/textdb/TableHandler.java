@@ -113,6 +113,7 @@ public class TableHandler {
 		StringBuilder output = new StringBuilder();
 		boolean checkNull = true;
 		try {
+			raFile.seek(0);
 			while (checkNull) {
 				String temp = raFile.readLine();
 				if (temp != null) {
@@ -139,10 +140,10 @@ public class TableHandler {
 	 **************************************************************************/
 	public String findRecord(String key) throws SQLException {
 		/*
-		 .At the start moves the read/write pointer to the start of the desired recored using seek.
-		 * Reads desired line of the text file using readLine and then puts the
-		 * line in a temp string. As asked prints out a string of the
-		 * column names whether or not a record is found. 
+		 * .At the start moves the read/write pointer to the start of the
+		 * desired recored using seek. Reads desired line of the text file using
+		 * readLine and then puts the line in a temp string. As asked prints out
+		 * a string of the column names whether or not a record is found.
 		 * returns a string
 		 */
 		StringBuilder output = new StringBuilder();
@@ -151,8 +152,9 @@ public class TableHandler {
 			System.out.println("offset: " + x);
 
 			raFile.seek(x);
-			output.append("ProductID	ProductName	SupplierID	CategoryID\n");
-
+			if (x != 0) {
+				output.append("ProductID	ProductName	SupplierID	CategoryID\n");
+			}
 			String temp = raFile.readLine();
 			if (temp != null) {
 
@@ -175,12 +177,12 @@ public class TableHandler {
 	 **************************************************************************/
 	private long findStartOfRecord(String key) throws SQLException {
 		/*
-		 * Sets the initial pointer location to the start of the file
-		 * Inside a while loop gets the current pointer location and the next line of text
-		 * checks to see if the string is = to null. then checks to see if the line of text
-		 * starts with the key. If it starts with the key the boolean the controls the loop 
-		 * is set to false so the to pend the loop and get the pointer location 
-		 * before the key. returns a long
+		 * Sets the initial pointer location to the start of the file Inside a
+		 * while loop gets the current pointer location and the next line of
+		 * text checks to see if the string is = to null. then checks to see if
+		 * the line of text starts with the key. If it starts with the key the
+		 * boolean the controls the loop is set to false so the to pend the loop
+		 * and get the pointer location before the key. returns a long
 		 * 
 		 */
 		long pointer = 0;
@@ -193,7 +195,8 @@ public class TableHandler {
 				String temp = raFile.readLine();
 				if (temp != null) {
 					if (temp.startsWith(key)) {
-						checkNull = false;
+						return pointer;
+
 					}
 				} else {
 					checkNull = false;
@@ -205,7 +208,7 @@ public class TableHandler {
 			throw new SQLException(e);
 
 		}
-		return pointer;
+		return 0;
 	}
 
 	/*************************************************************************************
@@ -235,9 +238,52 @@ public class TableHandler {
 	 * empty space of deleted record Catch any IOException and re-throw it as a
 	 * SQLException if any error occurs.
 	 **************************************************************************/
-	public int deleteRecord(String key) throws SQLException { // TODO: Write
-																// this method
-		return 0;
+	public int deleteRecord(String key) throws SQLException {
+		/*
+		 * Finds the pointer location of the record to delete using the findStartOfRecord with the record key
+		 * Then checks to see if the pointer is at zero, if at there nothing is deleted.
+		 * initializes a writerPointer and a readPointer and a temp int
+		 * in the while loop reads the file byte by byte and then writes over the record to be deleted byte
+		 * by byte. It then sets a new length for the file so that it deletes extra rows
+		 */
+		long x = findStartOfRecord(key);
+		boolean checkNull = true;
+
+		try {
+
+			if (x == 0) {
+				return 0;
+			} else {
+				raFile.seek(x);
+				long recordLength = raFile.readLine().length();// never used but required for it to work
+				long writePointer = x;
+				long readPointer = raFile.getFilePointer();
+				int temp;
+				raFile.seek(readPointer);
+				temp = raFile.read();
+
+				while (checkNull) {
+					raFile.seek(readPointer);
+					temp = raFile.read();
+					readPointer = raFile.getFilePointer();
+					if (temp != -1) {
+						raFile.seek(writePointer);
+						raFile.write(temp);
+						writePointer = raFile.getFilePointer();
+					} else {
+						checkNull = false;
+					}
+				}
+				long newFileLength = writePointer;
+				raFile.setLength(newFileLength);
+				return 1;
+			}
+		} catch (IOException e) {
+
+			e.printStackTrace();
+			throw new SQLException(e);
+
+		}
 	}
 
 	/**************************************************************************************
