@@ -293,10 +293,19 @@ public class TableHandler {
 	 * Return 1 if record successfully inserted, 0 otherwise. Catch any
 	 * IOException and re-throw it as a SQLException if any error occurs.
 	 **************************************************************************/
-	public int insertRecord(String record) throws SQLException { // TODO: Write
-																	// this
-																	// method
-		return 0;
+	public int insertRecord(String record) throws SQLException { 
+		// writes the string to the end of the file
+		try{
+		long fileLength = raFile.length();
+		raFile.seek(fileLength);
+		raFile.writeBytes(record);
+		return 1; 
+		} catch (IOException e) {
+
+			e.printStackTrace();
+			throw new SQLException(e);
+
+		}
 	}
 
 	/**********************************************************************************
