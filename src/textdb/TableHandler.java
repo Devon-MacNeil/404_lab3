@@ -130,17 +130,40 @@ public class TableHandler {
 
 	/**************************************************************************************
 	 * findRecord() takes parameter key holding the key of the record to return,
-	 * Returns a String consisting of the columnNames string an EOL(end of line), any record
+	 * Returns a String consisting of the columnNames string an EOL, any record
 	 * if found, and an EOL. If no record is found, should still return the
 	 * columnNames string and an EOL. Catch any IOException and re-throw it as a
 	 * SQLException if any error occurs.
 	 **************************************************************************/
 	public String findRecord(String key) throws SQLException {
-		// TODO: Write this method
+		/*
+		 * Reads each line of the text file using readLine and then puts the line in a 
+		 * temp string.At the start moves the read/write pointer to the start of the file
+		 * using seek. As asked prints out a string of the column names whether or not 
+		 * a record is found . Checks to see if the text file has a record by checking 
+		 * if the string starts with the key (the key being the product id which each 
+		 * string starts with). As with readAll uses a boolean to control flow through file
+		 */
+		StringBuilder output = new StringBuilder();
+		boolean checkNull = true;
 		try{
-		return "";
+			System.out.println("key: " +key);
+			raFile.seek(0);
+			output.append("ProductID	ProductName	SupplierID	CategoryID\n");
+			while(checkNull){
+				String temp = raFile.readLine();
+				if(temp!=null){
+					if(temp.startsWith(key)) {
+						output.append(temp.trim()+"\n");
+					}
+				}else {
+					checkNull = false;
+				}
+			}
+		return output.toString();
 		}catch(IOException e){
-			return"";
+			output.append(e);
+			return output.toString();
 		}
 	}
 
