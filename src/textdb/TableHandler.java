@@ -100,8 +100,9 @@ public class TableHandler {
 	 * end of each record). Note: You do not have to parse each record. Just
 	 * append the whole line (make sure to trim() input). Catch any IOException
 	 * and re-throw it as a SQLException if any error occurs.
+	 * @throws IOException 
 	 *************************************************************************************/
-	public String readAll() throws SQLException {
+	public String readAll() throws SQLException{
 		/*
 		 * Reads the text file using readLine() from the random access file and
 		 * puts the line into a string builder. A boolean controls the while
@@ -122,8 +123,8 @@ public class TableHandler {
 
 			return output.toString();
 		} catch (IOException e) {
-			output.append(e);
-			return output.toString();
+		    e.printStackTrace();
+			throw new SQLException(e);
 		}
 
 	}
@@ -147,14 +148,18 @@ public class TableHandler {
 		StringBuilder output = new StringBuilder();
 		boolean checkNull = true;
 		try{
-			System.out.println("key: " +key);
+			long x = findStartOfRecord(key);
+			System.out.println("offset: " +x);
+			
 			raFile.seek(0);
 			output.append("ProductID	ProductName	SupplierID	CategoryID\n");
 			while(checkNull){
 				String temp = raFile.readLine();
 				if(temp!=null){
 					if(temp.startsWith(key)) {
+						System.out.println("offset: "+raFile.getFilePointer());
 						output.append(temp.trim()+"\n");
+					
 					}
 				}else {
 					checkNull = false;
@@ -162,9 +167,9 @@ public class TableHandler {
 			}
 		return output.toString();
 		}catch(IOException e){
-			output.append(e);
-			return output.toString();
-		}
+			   e.printStackTrace();
+				throw new SQLException(e);
+			}
 	}
 
 	/**************************************************************************************
@@ -174,11 +179,30 @@ public class TableHandler {
 	 * Helper method to locate a record and find location of cursor Catch any
 	 * IOException and re-throw it as a SQLException if any error occurs.
 	 **************************************************************************/
-	private long findStartOfRecord(String key) throws SQLException { // TODO:
-																		// Write
-																		// this
-																		// method
-		return 0;
+	private long findStartOfRecord(String key) throws SQLException {
+		// TODO:Write this method
+		long pointer = 0;
+		boolean checkNull = true;
+		try{
+			System.out.println("key: " +key);
+			raFile.seek(0);
+			while(checkNull){
+				String temp = raFile.readLine();
+				if(temp!=null){
+					if(temp.startsWith(key)) {
+						pointer= raFile.getFilePointer();
+					}
+				}else {
+					checkNull = false;
+				}
+			}
+		}catch(IOException e){
+			
+			   e.printStackTrace();
+				throw new SQLException(e);
+			
+		}
+		return pointer;
 	}
 
 	/*************************************************************************************
