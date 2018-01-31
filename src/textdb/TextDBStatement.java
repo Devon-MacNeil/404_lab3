@@ -33,13 +33,41 @@ public class TextDBStatement implements Statement {
 	@Override
 	public ResultSet executeQuery(String query) throws SQLException {				
 		// TODO: Complete this method.
-		return null;
+		TableHandler tb = new TableHandler();
+		if(query.toUpperCase().contains("SELECT")){
+			if(query.toUpperCase().contains("ALL")){
+				return new TextDBResultSet(tb.readAll());
+			}else{
+				String[] q = query.split("\\s+");
+				return new TextDBResultSet(tb.findRecord(q[1]));
+			}
+		}else{
+			System.out.println("Invalid query");
+			return new TextDBResultSet("");
+		}
+		
+		
 	}
 
 	@Override
 	public int executeUpdate(String query) throws SQLException {
 		// TODO: Complete this method.
-		return 0;		
+		/*
+    DELETE key (e.g. DELETE 5)
+    INSERT record (e.g. INSERT 33 Lawrence 44 9). Note that the fields are already tab-delimited to make it easier to do the insert (can write the record directly to the file by calling appropriate method in TableHandler).
+    UPDATE key column value (e.g. UPDATE 2 2 Change Special Company Export). Note that fields are also tab separated for convenience.
+		 */
+		TableHandler tb = new TableHandler();
+		String[] q = query.split("\\s+");
+
+		switch(q[0].toLowerCase()){
+		case "delete": return tb.deleteRecord(q[1]); 
+		case "insert": return tb.insertRecord(q[1]+ " "+ q[2]+" "+ q[3]+" "+ q[4]);
+		case "update": return tb.updateRecord(q[1], Integer.parseInt(q[2]), q[3]);
+		default: return 0;	
+		
+		}
+		
 	}
 		
 	

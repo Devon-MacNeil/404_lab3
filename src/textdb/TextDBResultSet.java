@@ -1,7 +1,10 @@
 package textdb;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Array;
@@ -33,22 +36,72 @@ public class TextDBResultSet implements ResultSet {
 	
 	public TextDBResultSet(String result)
 	{	// TODO: Complete this method.
-		
 		// Parse all results into an ArrayList for easier retrieval		
-		
 		// First row is the row of column names
-		
 		// Set up result rows
+		//get all the column names
+		
+		//use StringReader to parse through string and put each line in the results ArrayList
+		 
+		BufferedReader reader = new BufferedReader(new StringReader(result));
+		try {
+			results = new ArrayList<String>();
+			//set currentLocation to 0 for column names
+			currentLoc =0;
+			
+			String line = reader.readLine();
+            while (line != null) {
+                results.add(line);
+                line = reader.readLine();
+            }
+          //get the column names
+            String col= results.get(0);
+
+            columnNames = col.split("\\s+");
+
+//            
+//           //create an array list of the indexes at the start and end of each word 
+//           ArrayList<Integer> idxs= new ArrayList<Integer>();
+//           idxs.add(0);
+//          
+//           //iterates through the string of column names and adds the index for each whitespace
+//           while(col.indexOf(" ") !=-1){
+//           idxs.add(col.indexOf(" "));
+//           }
+//           
+//           //adds the final index of the string, which would just be the length of the string -1
+//           idxs.add(col.length()-1);
+//           //initializes the columnName array with the number of columns
+//           columnNames = new String[idxs.size()-1];
+//
+//           //adds the names of the columns into columnNames array using the indexes in the idxs arraylist
+//           for(int i=0; i<columnNames.length; i++){
+//        	   columnNames[i] = (col.substring(idxs.get(i), idxs.get(i+1))).trim();
+//           }
+           
+           //initializes the metadata
+           metadata = new TextDBResultSetMetaData(columnNames); 
+            
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
 	@Override
 	public boolean next() throws SQLException {
-		// TODO: Complete this method.
+		// TODO: Complete this method.		
 		// Advance to next row					
-			
+		
+		currentLoc++;
+		if(currentLoc < results.size()){
+		
 		// Parse the column contents into array columns	
-		return false;
+        String col= results.get(currentLoc);
+        columns = col.split("\\s+");
+        return true;
+
+		}else return false;
 	}
 
 	
@@ -69,13 +122,18 @@ public class TextDBResultSet implements ResultSet {
 	@Override
 	public Object getObject(int idx) throws SQLException {
 		// TODO: Complete this method.
-		return null;	
+		if (idx < 1 || idx > columnNames.length)
+			throw new SQLException("Invalid column index.");
+		
+		return columns[idx-1];
+		
 	}
 
 	@Override
 	public Object getObject(String name) throws SQLException {
 		// TODO: Complete this method.
-		return null;
+		int col = findColumn(name);
+		return getObject(col-1);
 	}
 	
 	@Override
