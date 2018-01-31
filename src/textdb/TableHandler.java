@@ -100,14 +100,15 @@ public class TableHandler {
 	 * end of each record). Note: You do not have to parse each record. Just
 	 * append the whole line (make sure to trim() input). Catch any IOException
 	 * and re-throw it as a SQLException if any error occurs.
-	 * @throws IOException 
+	 * 
+	 * @throws IOException
 	 *************************************************************************************/
-	public String readAll() throws SQLException{
+	public String readAll() throws SQLException {
 		/*
 		 * Reads the text file using readLine() from the random access file and
 		 * puts the line into a string builder. A boolean controls the while
-		 * loop. An if statement checks to see if the nextLine is null and sets the boolean to false
-		 * if it is.
+		 * loop. An if statement checks to see if the nextLine is null and sets
+		 * the boolean to false if it is.
 		 */
 		StringBuilder output = new StringBuilder();
 		boolean checkNull = true;
@@ -123,7 +124,7 @@ public class TableHandler {
 
 			return output.toString();
 		} catch (IOException e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 			throw new SQLException(e);
 		}
 
@@ -138,38 +139,31 @@ public class TableHandler {
 	 **************************************************************************/
 	public String findRecord(String key) throws SQLException {
 		/*
-		 * Reads each line of the text file using readLine and then puts the line in a 
-		 * temp string.At the start moves the read/write pointer to the start of the file
-		 * using seek. As asked prints out a string of the column names whether or not 
-		 * a record is found . Checks to see if the text file has a record by checking 
-		 * if the string starts with the key (the key being the product id which each 
-		 * string starts with). As with readAll uses a boolean to control flow through file
+		 .At the start moves the read/write pointer to the start of the desired recored using seek.
+		 * Reads desired line of the text file using readLine and then puts the
+		 * line in a temp string. As asked prints out a string of the
+		 * column names whether or not a record is found. 
+		 * returns a string
 		 */
 		StringBuilder output = new StringBuilder();
-		boolean checkNull = true;
-		try{
+		try {
 			long x = findStartOfRecord(key);
-			System.out.println("offset: " +x);
-			
-			raFile.seek(0);
+			System.out.println("offset: " + x);
+
+			raFile.seek(x);
 			output.append("ProductID	ProductName	SupplierID	CategoryID\n");
-			while(checkNull){
-				String temp = raFile.readLine();
-				if(temp!=null){
-					if(temp.startsWith(key)) {
-						System.out.println("offset: "+raFile.getFilePointer());
-						output.append(temp.trim()+"\n");
-					
-					}
-				}else {
-					checkNull = false;
-				}
+
+			String temp = raFile.readLine();
+			if (temp != null) {
+
+				output.append(temp.trim() + "\n");
+
 			}
-		return output.toString();
-		}catch(IOException e){
-			   e.printStackTrace();
-				throw new SQLException(e);
-			}
+			return output.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new SQLException(e);
+		}
 	}
 
 	/**************************************************************************************
@@ -180,27 +174,36 @@ public class TableHandler {
 	 * IOException and re-throw it as a SQLException if any error occurs.
 	 **************************************************************************/
 	private long findStartOfRecord(String key) throws SQLException {
-		// TODO:Write this method
+		/*
+		 * Sets the initial pointer location to the start of the file
+		 * Inside a while loop gets the current pointer location and the next line of text
+		 * checks to see if the string is = to null. then checks to see if the line of text
+		 * starts with the key. If it starts with the key the boolean the controls the loop 
+		 * is set to false so the to pend the loop and get the pointer location 
+		 * before the key. returns a long
+		 * 
+		 */
 		long pointer = 0;
 		boolean checkNull = true;
-		try{
-			System.out.println("key: " +key);
+		try {
+			System.out.println("key: " + key);
 			raFile.seek(0);
-			while(checkNull){
+			while (checkNull) {
+				pointer = raFile.getFilePointer();
 				String temp = raFile.readLine();
-				if(temp!=null){
-					if(temp.startsWith(key)) {
-						pointer= raFile.getFilePointer();
+				if (temp != null) {
+					if (temp.startsWith(key)) {
+						checkNull = false;
 					}
-				}else {
+				} else {
 					checkNull = false;
 				}
 			}
-		}catch(IOException e){
-			
-			   e.printStackTrace();
-				throw new SQLException(e);
-			
+		} catch (IOException e) {
+
+			e.printStackTrace();
+			throw new SQLException(e);
+
 		}
 		return pointer;
 	}
