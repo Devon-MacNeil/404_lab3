@@ -223,7 +223,13 @@ public class TableHandler {
 	 * occurs.
 	 ************************************************************************************/
 	public int updateRecord(String key, int col, String value) throws SQLException { 
-		// TODO: Write this method
+		/*
+		 * gets the location for the update using findStartOfRecord. Gets the record and splits it into an array of strings
+		 * changes the value in the indicated column. Then overwrites the old record with white space. Builds new record using string
+		 * builder. turns new string into array of bytes. Then checks to see if the new record is larger than the old 1. If it isn't
+		 * it just writes the new record into the file. If it is it increases the file size by the new record size and then makes room
+		 * for the new record in a loop. It then writes the new record using the created byte array.
+		 */
 		long recordLocation = findStartOfRecord(key);
 		StringBuilder output = new StringBuilder();
 		boolean checkLoc = true;
@@ -242,15 +248,16 @@ public class TableHandler {
 			for(int i=0;i<recordArray.length;i++){
 				output.append((recordArray[i])+"\t");
 			}
+			String out = output.toString();
+			byte[] stringtoBytes = out.getBytes();
 			if((output.toString().length())>(recordLength)){
-				long difference = output.toString().length()- recordLength;
 				long fileLength = raFile.length();
 				long newLength = fileLength + output.toString().length();
-				long writePointer = newLength;
-				long readPointer = fileLength;
+				long writePointer = newLength-1;
+				long readPointer = fileLength-1;
 				int readByte;
 				while(checkLoc){
-					if(readPointer == (recordLocation + output.toString().length())){
+					if(readPointer == (recordLocation-1)){
 						checkLoc = false;
 					}else{
 						raFile.seek(readPointer);
@@ -264,7 +271,9 @@ public class TableHandler {
 				
 				raFile.seek(recordLocation);
 				System.out.println(output.toString());
-				raFile.writeBytes(output.toString());
+				for(int i =0; i<stringtoBytes.length;i++){
+					raFile.write(stringtoBytes[i]);
+				}
 	        }else{
 	        	raFile.seek(recordLocation);
 				raFile.writeBytes(output.toString());
