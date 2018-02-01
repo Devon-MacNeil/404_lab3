@@ -355,6 +355,7 @@ public class TableHandler {
 	public int insertRecord(String record) throws SQLException { 
 		// writes the string to the end of the file
 		try{
+		record+="\n";
 		long fileLength = raFile.length();
 		raFile.seek(fileLength);
 		raFile.writeBytes(record);

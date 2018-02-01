@@ -18,3 +18,4 @@ ProductID	ProductName	SupplierID	CategoryID
 19	Teatime Chocolate Biscuits	8	3		
 14	Tofu	6	7		
 7	Uncle Bob's Organic Dried Pears	3	7
+ 22	Terry	55	2 33	Lawrence	44	9

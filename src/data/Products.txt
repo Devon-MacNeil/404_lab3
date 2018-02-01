@@ -3,7 +3,7 @@ ProductID	ProductName	SupplierID	CategoryID
 3	Aniseed Syrup	1	2		
 18	Carnarvon Tigers	7	8		
 1	Chai	1	1		
-2	Change Special Company Export	1	1	             
+2	Chang	1	1		
 4	Chef Anton's Cajun Seasoning	2	2		
 5	Chef Anton's Gumbo Mix	2	2		
 15	Genen Shouyu	6	2		
@@ -18,3 +18,5 @@ ProductID	ProductName	SupplierID	CategoryID
 19	Teatime Chocolate Biscuits	8	3		
 14	Tofu	6	7		
 7	Uncle Bob's Organic Dried Pears	3	7
+ 22	Terry	55	2
+ 33	Lawrence	44	9
