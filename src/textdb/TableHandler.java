@@ -222,11 +222,61 @@ public class TableHandler {
 	 * Catch any IOException and re-throw it as a SQLException if any error
 	 * occurs.
 	 ************************************************************************************/
-	public int updateRecord(String key, int col, String value) throws SQLException { // TODO:
-																						// Write
-																						// this
-																						// method
-		return 0;
+	public int updateRecord(String key, int col, String value) throws SQLException { 
+		// TODO: Write this method
+		long recordLocation = findStartOfRecord(key);
+		StringBuilder output = new StringBuilder();
+		boolean checkLoc = true;
+		try{
+			raFile.seek(recordLocation);
+			String record = raFile.readLine();
+			long recordLength = record.length();
+			String recordArray[] = record.split("\\t+");
+	        
+			recordArray[col-1] = value;
+			
+			raFile.seek(recordLocation);
+			for(int i=0;i<recordLength;i++){
+				raFile.writeBytes(" ");
+			}
+			for(int i=0;i<recordArray.length;i++){
+				output.append((recordArray[i])+"\t");
+			}
+			if((output.toString().length())>(recordLength)){
+				long difference = output.toString().length()- recordLength;
+				long fileLength = raFile.length();
+				long newLength = fileLength + output.toString().length();
+				long writePointer = newLength;
+				long readPointer = fileLength;
+				int readByte;
+				while(checkLoc){
+					if(readPointer == (recordLocation + output.toString().length())){
+						checkLoc = false;
+					}else{
+						raFile.seek(readPointer);
+						readByte = raFile.read();
+						readPointer--;
+						raFile.seek(writePointer);
+						raFile.write(readByte);
+						writePointer--;
+					}
+				}
+				
+				raFile.seek(recordLocation);
+				System.out.println(output.toString());
+				raFile.writeBytes(output.toString());
+	        }else{
+	        	raFile.seek(recordLocation);
+				raFile.writeBytes(output.toString());
+	        }
+			return 1;
+		}catch (IOException e) {
+
+			e.printStackTrace();
+			throw new SQLException(e);
+
+		}
+	
 	}
 
 	/**************************************************************************************
